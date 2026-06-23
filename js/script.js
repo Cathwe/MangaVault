@@ -123,7 +123,7 @@ function mostrarError(inputElement, mensaje) {
 function validarFormulario() {
     let esValido = true;
 
-    // Regla 1: Verificación de campos requeridos
+    // Regla 1: Verificación de campos requeridos (No vacíos)
     const campos = [titulo, autor, genero, estado, tomos];
     campos.forEach(campo => {
         if (campo && !campo.value.trim()) {
@@ -134,31 +134,41 @@ function validarFormulario() {
         }
     });
 
+    // Si ya falló la regla de campos vacíos, frenamos aquí para no acumular errores
     if (!esValido) return false;
 
-    // Regla 2: Formato específico (Regex para autor)
-    const regexLetras = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
-    if (autor && !regexLetras.test(autor.value.trim())) {
-        mostrarError(autor, "El nombre del autor solo debe contener letras.");
-        esValido = false;
+    // Regla 2: Formato específico (Regex para autor - SOLO LETRAS Y ESPACIOS)
+    // Esta expresión regular permite letras mayúsculas, minúsculas, espacios, tildes y la eñe.
+    const regexLetras = /^[a-zA-ZÀ-ÿ\s]+$/;
+    
+    if (autor) {
+        const valorAutor = autor.value.trim();
+        if (!regexLetras.test(valorAutor)) {
+            mostrarError(autor, "El nombre del autor solo debe contener letras y espacios.");
+            esValido = false;
+        } else {
+            mostrarError(autor, ""); // Si está correcto, limpia el error
+        }
     }
 
-    // Regla 3: Longitud mínima de caracteres
-    if (titulo && titulo.value.trim().length < 3) {
-        mostrarError(titulo, "El título debe tener al menos 3 caracteres.");
-        esValido = false;
+    // Regla 3: Longitud mínima de caracteres para el Título
+    if (titulo) {
+        if (titulo.value.trim().length < 3) {
+            mostrarError(titulo, "El título debe tener al menos 3 caracteres.");
+            esValido = false;
+        }
     }
 
-    // Regla 4: Validación de coincidencia cruzada
+    // Regla 4: Validación de coincidencia cruzada (Dependencia de estado/tomos)
     if (estado && tomos && estado.value === "Completado" && parseInt(tomos.value) < 1) {
         mostrarError(tomos, "Un manga completado debe tener al menos 1 tomo.");
         esValido = false;
     }
 
-    // Regla 5: Valor único no repetido
+    // Regla 5: Valor único no repetido (Regla de negocio)
     const existeManga = mangas.some(m => m.titulo.toLowerCase() === (titulo ? titulo.value.trim().toLowerCase() : ''));
     if (existeManga && titulo) {
-        mostrarError(titulo, "Este manga ya está registrado.");
+        mostrarError(titulo, "Este manga ya está registrado en tu biblioteca.");
         esValido = false;
     }
 
