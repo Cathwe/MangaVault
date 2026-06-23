@@ -53,7 +53,7 @@ header p{
 }
 
 section{
-    transition:3s;
+    transition:0.3s;
     background:#1f1f1f;
     border-radius:18px;
     padding:30px;
@@ -109,22 +109,29 @@ button{
     font-size:16px;
     font-weight:600;
     cursor:pointer;
-    transition:.3s;
+    transition:0.3s;
 }
 
 button:hover{
     background:#7c3aed;
 }
 
+/* Estilo para el botón eliminar dentro de las tarjetas */
+.btn-eliminar {
+    background: #FF6B6B !important;
+}
+.btn-eliminar:hover {
+    background: #fa5252 !important;
+}
 
-/* puede q me de error el hover */
+/* ir viendo transiciones jsj */
 
 .manga-card{
     background:#262626;
     border-left:5px solid #9b5cff;
     border-radius:15px;
     padding:20px;
-    transition:.3s;
+    transition:0.3s;
 }
 
 .manga-card:hover{

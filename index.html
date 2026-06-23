@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MangaVault</title>
-
     <link rel="stylesheet" href="css/styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,111 +12,85 @@
 <body>
 
     <header>
-        <h1> MangaVault</h1>
+        <h1>MangaVault</h1>
         <p>Administra tu colección de mangas</p>
     </header>
     
     <main>
         <section>
-
             <h2>Agregar Mangas</h2>
-
             <form id="mangaForm">
-                
-                <div>
+                <div class="form-group">
                     <label for="titulo">Título</label>
                     <input type="text" id="titulo">
-
                     <small class="error"></small>
                 </div>
 
-                <div>
+                <div class="form-group">
                     <label for="autor">Autor</label>
                     <input type="text" id="autor">
-
                     <small class="error"></small>
                 </div>
 
-                <div>
+                <div class="form-group">
                     <label for="genero">Género</label>
-
                     <select id="genero">
-                        <option>Shonen</option>
-                        <option>Seinen</option>
-                        <option>Shojo</option>
-                        <option>Josei</option>
-                        <option>Romance</option>
-                        <option>Isekai</option>
-                        <option>Acción</option>
+                        <option value="">Seleccionar género</option>
+                        <option value="Shonen">Shonen</option>
+                        <option value="Seinen">Seinen</option>
+                        <option value="Shojo">Shojo</option>
+                        <option value="Josei">Josei</option>
+                        <option value="Romance">Romance</option>
+                        <option value="Isekai">Isekai</option>
+                        <option value="Acción">Acción</option>
                     </select>
-
                     <small class="error"></small>
                 </div>
 
-                <div>
+                <div class="form-group">
                     <label for="estado">Estado</label>
-
                     <select id="estado">
-                        <option value="">Seleccionar</option>
-                        <option>Leyendo</option>
-                        <option>Pendiente</option>
-                        <option>Completado</option>
-                        <option>Abandonado</option>
+                        <option value="">Seleccionar estado</option>
+                        <option value="Leyendo">Leyendo</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Completado">Completado</option>
+                        <option value="Abandonado">Abandonado</option>
                     </select>
-
                     <small class="error"></small>
-
                 </div>
 
-                <div>
+                <div class="form-group">
                     <label for="tomos">Cantidad de tomos</label>
                     <input type="number" id="tomos" min="1">
-
                     <small class="error"></small>
-
                 </div>
 
                 <button type="submit">Agregar Manga</button>
-
-
             </form>
-
         </section>
 
         <section id="filtros">
-
             <input type="text" id="buscar" placeholder="Buscar manga...">
-
             <select id="filtroGenero">
                 <option value="">Todos los géneros</option>
             </select>
-
             <select id="filtroEstado">
                 <option value="">Todos los estados</option>
             </select>
-
         </section>
 
         <section id="estadisticas">
-
             <h2>Mi Biblioteca</h2>
-
             <p>Total: <span id="totalMangas">0</span></p>
             <p>Leyendo: <span id="leyendo">0</span></p>
             <p>Pendientes: <span id="pendientes">0</span></p>
             <p>Completados: <span id="completados">0</span></p>
             <p>Abandonados: <span id="abandonados">0</span></p>
-
         </section>
 
-        <section id="contenedorMangas">
-
-        </section>
-
+        <section id="contenedorMangas"></section>
     </main>
 
     <script src="js/script.js"></script>
-
 </body>
-
 </html>
