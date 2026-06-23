@@ -15,9 +15,9 @@ const filtroEstado = document.getElementById('filtroEstado');
 
 const totalMangas = document.getElementById('totalMangas');
 const leyendo = document.getElementById('leyendo');
-const pendientes = document.getElementById('pendientes');
-const completados = document.getElementById('completados');
-const abandonados = document.getElementById('abandonados');
+const pendiente = document.getElementById('pendiente');
+const completado = document.getElementById('completado');
+const abandonado = document.getElementById('abandonado');
 
 const contenedorMangas = document.getElementById('contenedorMangas');
 
@@ -68,9 +68,9 @@ function mostrarMangas() {
 function actualizarEstadisticas() {
     if (totalMangas) totalMangas.textContent = mangas.length;
     if (leyendo) leyendo.textContent = mangas.filter(m => m.estado === 'Leyendo').length;
-    if (pendientes) pendientes.textContent = mangas.filter(m => m.estado === 'Pendiente').length;
-    if (completados) completados.textContent = mangas.filter(m => m.estado === 'Completados').length;
-    if (abandonados) abandonados.textContent = mangas.filter(m => m.estado === 'Abandonados').length;
+    if (pendiente) pendiente.textContent = mangas.filter(m => m.estado === 'Pendiente').length;
+    if (completado) completado.textContent = mangas.filter(m => m.estado === 'Completado').length;
+    if (abandonado) abandonado.textContent = mangas.filter(m => m.estado === 'Abandonado').length;
 }
 
 function llenarFiltrosDinamicos() {
