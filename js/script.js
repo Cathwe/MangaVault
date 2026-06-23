@@ -1,23 +1,17 @@
-// ==== Formulario ==== 
+// ==== ESTADO DE LA APLICACIÓN (Persistencia en LocalStorage) ====
+let mangas = JSON.parse(localStorage.getItem('mangas')) || [];
 
+// ==== ELEMENTOS DEL DOM ====
 const mangaForm = document.getElementById('mangaForm');
-
 const titulo = document.getElementById('titulo');
 const autor = document.getElementById('autor');
 const genero = document.getElementById('genero');
 const estado = document.getElementById('estado');
 const tomos = document.getElementById('tomos');
 
-// ==== Buscador ====
-
 const buscar = document.getElementById('buscar');
-
-// ==== Filtros ====
-
 const filtroGenero = document.getElementById('filtroGenero');
 const filtroEstado = document.getElementById('filtroEstado');
-
-// ==== Estadísticas ====
 
 const totalMangas = document.getElementById('totalMangas');
 const leyendo = document.getElementById('leyendo');
@@ -25,33 +19,191 @@ const pendientes = document.getElementById('pendientes');
 const completados = document.getElementById('completados');
 const abandonados = document.getElementById('abandonados');
 
-// ===== Contenedor de mangas =====
-
 const contenedorMangas = document.getElementById('contenedorMangas');
 
-// ==== Escuchadores de eventos ==== 
-mangaForm.addEventListener("submit", function(event){
+// ==== FUNCIONES DE CONTROL PRINCIPAL ====
 
-    event.preventDefault();
+function actualizarApp() {
+    localStorage.setItem('mangas', JSON.stringify(mangas));
+    mostrarMangas();
+    actualizarEstadisticas();
+    llenarFiltrosDinamicos();
+}
 
-    console.log("Formulario enviado");
+function mostrarMangas() {
+    if (!contenedorMangas) return;
+    contenedorMangas.innerHTML = '';
 
-});
+    const terminoBusqueda = buscar ? buscar.value.toLowerCase() : '';
+    const genFiltrado = filtroGenero ? filtroGenero.value : '';
+    const estFiltrado = filtroEstado ? filtroEstado.value : '';
 
-mangaForm.addEventListener("submit", function(event){
+    const mangasFiltrados = mangas.filter(manga => {
+        const coincideBusqueda = manga.titulo.toLowerCase().includes(terminoBusqueda) || 
+                                 manga.autor.toLowerCase().includes(terminoBusqueda);
+        const coincideGenero = genFiltrado === "" || manga.genero === genFiltrado;
+        const coincideEstado = estFiltrado === "" || manga.estado === estFiltrado;
+        
+        return coincideBusqueda && coincideGenero && coincideEstado;
+    });
 
-    event.preventDefault();
+    mangasFiltrados.forEach((manga, index) => {
+        const card = document.createElement('div');
+        card.classList.add('manga-card');
 
-    const nuevoManga = {
+        card.innerHTML = `
+            <h3>${manga.titulo}</h3>
+            <p><strong>Autor:</strong> ${manga.autor}</p>
+            <p><strong>Género:</strong> ${manga.genero}</p>
+            <p><strong>Estado:</strong> ${manga.estado}</p>
+            <p><strong>Tomos:</strong> ${manga.tomos}</p>
+            <div class="card-buttons">
+                <button class="btn-eliminar" data-index="${index}">Eliminar</button>
+            </div>
+        `;
+        contenedorMangas.appendChild(card);
+    });
+}
 
-        titulo: titulo.value,
-        autor: autor.value,
-        genero: genero.value,
-        estado: estado.value,
-        tomos: tomos.value
+function actualizarEstadisticas() {
+    if (totalMangas) totalMangas.textContent = mangas.length;
+    if (leyendo) leyendo.textContent = mangas.filter(m => m.estado === 'Leyendo').length;
+    if (pendientes) pendientes.textContent = mangas.filter(m => m.estado === 'Pendiente').length;
+    if (completados) completados.textContent = mangas.filter(m => m.estado === 'Completados').length;
+    if (abandonados) abandonados.textContent = mangas.filter(m => m.estado === 'Abandonados').length;
+}
 
-    };
+function llenarFiltrosDinamicos() {
+    if (!filtroGenero || !filtroEstado) return;
 
-    console.log(nuevoManga);
+    const generosExistentes = [...new Set(mangas.map(m => m.genero))];
+    const opcionGeneroActual = filtroGenero.value;
+    
+    filtroGenero.innerHTML = '<option value="">Todos los géneros</option>';
+    generosExistentes.forEach(gen => {
+        if(gen) {
+            const option = document.createElement('option');
+            option.value = gen;
+            option.textContent = gen;
+            filtroGenero.appendChild(option);
+        }
+    });
+    filtroGenero.value = opcionGeneroActual;
 
-});
+    const estadosFijos = ['Leyendo', 'Pendiente', 'Completado', 'Abandonado'];
+    const opcionEstadoActual = filtroEstado.value;
+
+    filtroEstado.innerHTML = '<option value="">Todos los estados</option>';
+    estadosFijos.forEach(est => {
+        const option = document.createElement('option');
+        option.value = est;
+        option.textContent = est;
+        filtroEstado.appendChild(option);
+    });
+    filtroEstado.value = opcionEstadoActual;
+}
+
+// ==== SISTEMA DE VALIDACIÓN SEGURO ====
+
+function mostrarError(inputElement, mensaje) {
+    if (!inputElement) return;
+    // Busca la etiqueta error que está dentro del mismo div contenedor
+    const errorSmall = inputElement.parentElement.querySelector('.error');
+    if (errorSmall) {
+        if (mensaje) {
+            errorSmall.textContent = mensaje;
+            inputElement.style.borderColor = "#FF6B6B"; 
+        } else {
+            errorSmall.textContent = "";
+            inputElement.style.borderColor = "#9b5cff"; 
+        }
+    }
+}
+
+function validarFormulario() {
+    let esValido = true;
+
+    // Regla 1: Verificación de campos requeridos
+    const campos = [titulo, autor, genero, estado, tomos];
+    campos.forEach(campo => {
+        if (campo && !campo.value.trim()) {
+            mostrarError(campo, "Este campo es obligatorio.");
+            esValido = false;
+        } else if (campo) {
+            mostrarError(campo, "");
+        }
+    });
+
+    if (!esValido) return false;
+
+    // Regla 2: Formato específico (Regex para autor)
+    const regexLetras = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+    if (autor && !regexLetras.test(autor.value.trim())) {
+        mostrarError(autor, "El nombre del autor solo debe contener letras.");
+        esValido = false;
+    }
+
+    // Regla 3: Longitud mínima de caracteres
+    if (titulo && titulo.value.trim().length < 3) {
+        mostrarError(titulo, "El título debe tener al menos 3 caracteres.");
+        esValido = false;
+    }
+
+    // Regla 4: Validación de coincidencia cruzada
+    if (estado && tomos && estado.value === "Completado" && parseInt(tomos.value) < 1) {
+        mostrarError(tomos, "Un manga completado debe tener al menos 1 tomo.");
+        esValido = false;
+    }
+
+    // Regla 5: Valor único no repetido
+    const existeManga = mangas.some(m => m.titulo.toLowerCase() === (titulo ? titulo.value.trim().toLowerCase() : ''));
+    if (existeManga && titulo) {
+        mostrarError(titulo, "Este manga ya está registrado.");
+        esValido = false;
+    }
+
+    return esValido;
+}
+
+// ==== MANEJO DE EVENTOS ====
+
+if (mangaForm) {
+    mangaForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        if (!validarFormulario()) return; 
+
+        const nuevoManga = {
+            titulo: titulo.value.trim(),
+            autor: autor.value.trim(),
+            genero: genero.value,
+            estado: estado.value,
+            tomos: parseInt(tomos.value)
+        };
+
+        mangas.push(nuevoManga);
+        actualizarApp();
+        mangaForm.reset();
+        
+        [titulo, autor, genero, estado, tomos].forEach(campo => {
+            if(campo) campo.style.borderColor = "transparent";
+        });
+    });
+}
+
+if (buscar) buscar.addEventListener('input', mostrarMangas);
+if (filtroGenero) filtroGenero.addEventListener('change', mostrarMangas);
+if (filtroEstado) filtroEstado.addEventListener('change', mostrarMangas);
+
+if (contenedorMangas) {
+    contenedorMangas.addEventListener('click', function(event) {
+        if (event.target.classList.contains('btn-eliminar')) {
+            const index = event.target.getAttribute('data-index');
+            mangas.splice(index, 1);
+            actualizarApp();
+        }
+    });
+}
+
+// ==== INICIALIZACIÓN ====
+actualizarApp();
